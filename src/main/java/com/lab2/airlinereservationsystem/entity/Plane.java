@@ -1,6 +1,19 @@
 package com.lab2.airlinereservationsystem.entity;
 
-public class Plane { // Embedded
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
+
+@Embeddable
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Plane {
     private String model;
     private int capacity;
     private String manufacturer;
