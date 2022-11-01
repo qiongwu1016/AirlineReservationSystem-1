@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,13 +24,13 @@ public class Passenger {
 
     private String lastname;
 
-    private int birthyear;  // Full form only (see definition below)
+    private Integer birthyear;  // Full form only (see definition below)
 
     private String gender;  // Full form only
 
     private String phone; // Phone numbers must be unique.   Full form only
 
-    @OneToMany(targetEntity = Reservation.class, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "passenger_reservations",
             joinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")})

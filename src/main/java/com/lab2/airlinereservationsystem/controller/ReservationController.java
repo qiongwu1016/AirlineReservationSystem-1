@@ -21,7 +21,7 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<?> createReservation(@RequestParam(value = "passengerId") String passengerId,
-                                               @RequestParam(value = "flightLists") List<String> flightNumbers,
+                                               @RequestParam(value = "flightNumbers") List<String> flightNumbers,
                                                @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
         Reservation reservation = reservationService.createReservation(passengerId,flightNumbers);
         return ResponseUtil.convertResponseEntity(reservation, xml);

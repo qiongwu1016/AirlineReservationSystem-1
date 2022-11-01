@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,6 @@ import java.util.*;
 public class Flight {
     // part of the primary key
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "flight_number")
     private String flightNumber;
 
@@ -35,7 +35,7 @@ public class Flight {
     private Date arrivalTime;
     // Full form only
 
-    private int price;
+    private Integer price;
     private String origin;
     private String destination;
 
@@ -45,9 +45,28 @@ public class Flight {
     @Embedded
     // Embedded,    Full form only
     private Plane plane;
-    @Transient
     // Full form only
+    @Transient
     private List<Passenger> passengers;
-    @ManyToMany(mappedBy = "flights")
+
+    @ManyToMany(targetEntity = Reservation.class, cascade = CascadeType.ALL)
+    @JsonBackReference
+    @JoinTable(name = "flight_reservation",
+            joinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number")},
+            inverseJoinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")}
+    )
     private List<Reservation> reservations;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return Objects.equals(flightNumber, flight.flightNumber) && Objects.equals(departureDate, flight.departureDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(flightNumber, departureDate);
+    }
 }

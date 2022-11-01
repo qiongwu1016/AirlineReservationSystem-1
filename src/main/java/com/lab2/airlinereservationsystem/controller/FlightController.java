@@ -30,8 +30,9 @@ public class FlightController {
     public ResponseEntity<?> createOrUpdateFlight(@PathVariable("flightNumber") String flightNumber,
                                                   @PathVariable(value = "departureDate") String departureDate,
                                                   @RequestParam(value = "price") int price,
-                                                  @RequestParam(value = "from") String origin,
-                                                  @RequestParam(value = "to") String destination,
+                                                  @RequestParam(value = "departureTime")String departureTime,
+                                                  @RequestParam(value = "origin") String origin,
+                                                  @RequestParam(value = "destination") String destination,
                                                   @RequestParam(value = "arrivalTime") String arrivalTime,
                                                   @RequestParam(value = "description") String description,
                                                   @RequestParam(value = "capacity") int capacity,
@@ -43,11 +44,13 @@ public class FlightController {
         requestFlight.setFlightNumber(flightNumber);
         requestFlight.setArrivalTime(DateUtil.getDateHour(arrivalTime));
         requestFlight.setDepartureDate(DateUtil.getDateDay(departureDate));
+        requestFlight.setDepartureTime(DateUtil.getDateHour(departureTime));
         requestFlight.setDescription(description);
         requestFlight.setDestination(destination);
         requestFlight.setOrigin(origin);
         requestFlight.setPrice(price);
         requestFlight.setPlane(new Plane(model,capacity,manufacturer,yearOfManufacture));
+        requestFlight.setSeatsLeft(capacity);
         flightService.createOrUpdateFlight(requestFlight);
         return ResponseUtil.convertResponseEntity(requestFlight, xml);
     }

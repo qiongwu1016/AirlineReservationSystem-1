@@ -3,12 +3,16 @@ package com.lab2.airlinereservationsystem.service;
 import com.lab2.airlinereservationsystem.common.exception.ErrorExceptionWrapper;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.dao.PassengerDao;
+import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Passenger;
+import com.lab2.airlinereservationsystem.entity.Reservation;
 import com.lab2.airlinereservationsystem.utils.BeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -21,6 +25,9 @@ public class PassengerService {
     @Autowired
     private PassengerDao passengerDao;
 
+    @Autowired
+    private ReservationDao reservationDao;
+
     @Transactional(rollbackFor = Exception.class)
     public void insert(Passenger passenger) {
         //...
@@ -28,7 +35,6 @@ public class PassengerService {
             throw new ValidExceptionWrapper("another passenger with the same number already exists.");
         }
         try {
-
             passengerDao.save(passenger);
         } catch (Exception e) {
             throw new ErrorExceptionWrapper(e.getMessage());
@@ -43,7 +49,21 @@ public class PassengerService {
     }
 
     public Passenger findOne(String id) {
-        return findById(id,QUERY_FORMAT);
+        Passenger passenger =findById(id,QUERY_FORMAT);
+        simpleReservation(passenger);
+        return passenger;
+    }
+
+    private void simpleReservation(Passenger passenger) {
+        List<Reservation> reservationList = passenger.getReservations();
+        if (!CollectionUtils.isEmpty(reservationList)){
+            reservationList.forEach(e->{
+                e.setPrice(null);
+                e.setFlights(null);
+                e.setPassenger(null);
+            });
+        }
+        passenger.setReservations(reservationList);
     }
 
     private Passenger findById(String id,String formatter) {
@@ -60,6 +80,7 @@ public class PassengerService {
         }
         BeanUtil.copyPropertiesIgnoreNull(passenger,originalPassenger);
         passengerDao.save(originalPassenger);
+        simpleReservation(originalPassenger);
         return originalPassenger;
     }
 

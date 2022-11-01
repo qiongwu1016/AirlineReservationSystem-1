@@ -7,6 +7,8 @@ import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Flight;
 import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.entity.Reservation;
+import com.lab2.airlinereservationsystem.utils.BeanUtil;
+import com.lab2.airlinereservationsystem.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -33,7 +35,27 @@ public class ReservationService {
     private FlightDao flightDao;
 
     public Reservation findOne(String number) {
-        return findById(number,QUERY_FORMAT);
+        Reservation reservation =findById(number,QUERY_FORMAT);
+        simpleMessage(reservation);
+        return reservation;
+    }
+
+    private void simpleMessage(Reservation reservation) {
+        if (null != reservation.getPassenger()){
+            reservation.setPassenger(BeanUtil.simplePassenger(reservation.getPassenger()));
+        }
+        if (!CollectionUtils.isEmpty(reservation.getFlights())){
+            List<Flight> flightList = reservation.getFlights();
+            flightList.forEach(flight -> {
+                flight.setPassengers(null);
+                flight.setPlane(null);
+                flight.setPrice(null);
+                flight.setDescription(null);
+                flight.setReservations(null);
+                flight.setPassengers(null);
+            });
+            reservation.setFlights(flightList);
+        }
     }
 
     private Reservation findById(String number, String queryFormat) {
@@ -44,7 +66,7 @@ public class ReservationService {
     public Reservation createReservation(String passengerId, List<String> flightNumbers) {
         Passenger passenger = passengerService.findOne(passengerId);
         List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightNumbers);
-        checkCurrentReservationFlightsTimings(flightList);
+        DateUtil.checkCurrentReservationFlightsTimings(flightList);
 
         checkWithExistingPassengerReservations(passengerId, flightList);
         checkSeats(flightList);
@@ -57,13 +79,13 @@ public class ReservationService {
         passenger.getReservations().add(reservation);
         int price = 0;
         for(Flight flight : flightList){
-            flight.getPassengers().add(passenger);
             price+=flight.getPrice();
         }
         reservation.setPrice(price);
         reservation.setOrigin(flightList.get(0).getOrigin());
         reservation.setDestination(flightList.get(flightList.size() -1).getDestination());
         reservationDao.save(reservation);
+        simpleMessage(reservation);
         return reservation;
     }
 
@@ -102,21 +124,6 @@ public class ReservationService {
         }
     }
 
-    private void checkCurrentReservationFlightsTimings(List<Flight> flightList) {
-        for(int i=0;i<flightList.size();i++){
-            for(int j=i+1;j<flightList.size();j++){
-                Date currentFlightDepartureDate=flightList.get(i).getDepartureTime();
-                Date currentFlightArrivalDate=flightList.get(i).getArrivalTime();
-                Date min=flightList.get(j).getDepartureTime();
-                Date max=flightList.get(j).getArrivalTime();
-                if((currentFlightArrivalDate.compareTo(min)>=0 && currentFlightArrivalDate.compareTo(max)<=0) || (currentFlightDepartureDate.compareTo(min)>=0 && currentFlightDepartureDate.compareTo(max)<=0)){
-                    throw new ValidExceptionWrapper("Sorry, the timings of flights: "
-                            +flightList.get(0).getFlightNumber() +" and "+ flightList.get(1).getFlightNumber()+" overlap" );
-                }
-            }
-        }
-
-    }
 
     public void delete(String number) {
         Reservation reservation = findById(number,DELETE_FORMATTER);
@@ -133,8 +140,54 @@ public class ReservationService {
         if (CollectionUtils.isEmpty(flightAddList)) {
             throw new ErrorExceptionWrapper("flightsAdded list cannot be empty,if param exists");
         }
+        if (CollectionUtils.isEmpty(flightRemoveList)) {
+            throw new ErrorExceptionWrapper("flightRemove list cannot be empty,if param exists");
+        }
+        List<Flight> reservationFlights = reservation.getFlights();
+        if (!CollectionUtils.isEmpty(reservationFlights) && reservationFlights.stream()
+                .map(Flight::getFlightNumber)
+                .collect(Collectors.toList())
+                .retainAll(flightAddList)){
+            throw new ErrorExceptionWrapper("flight number is already exists in reservation");
+        }
+        flightAddList.removeIf(flightRemoveList::contains);
+        int price = reservation.getPrice();
+        for (Flight flight: reservationFlights){
+            if (flightRemoveList.contains(flight.getFlightNumber())){
+                price-=flight.getPrice();
+                //add seat
+                flight.setSeatsLeft(flight.getSeatsLeft()+1);
+                flightDao.save(flight);
+            }
+        }
+        reservationFlights.removeIf(e->flightRemoveList.contains(e.getFlightNumber()));
 
+        List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightAddList);
+        if (flightList.size() != flightAddList.size()){
+            throw new ErrorExceptionWrapper("flight number not found!");
+        }
+        if (!CollectionUtils.isEmpty(flightList)){
+            for (Flight flight:flightList){
+                price+=flight.getPrice();
+                flight.setSeatsLeft(flight.getSeatsLeft() - 1);
+                if (flight.getSeatsLeft()<0){
+                    throw new ErrorExceptionWrapper("The total amount of passengers can not exceed the capacity of the reserved plane.");
+                }
+                reservationFlights.add(flight);
+            }
+        }
 
-        return null;
+        DateUtil.checkCurrentReservationFlightsTimings(reservationFlights);
+        flightDao.saveAll(flightList);
+        reservationFlights = reservationFlights.stream()
+                .sorted((a,b) -> a.getDepartureTime().compareTo(b.getDepartureDate()))
+                .collect(Collectors.toList());
+        reservation.setFlights(reservationFlights);
+        reservation.setPrice(price);
+        reservation.setOrigin(reservationFlights.get(0).getOrigin());
+        reservation.setDestination(reservationFlights.get(reservationFlights.size() - 1).getDestination());
+        reservation = reservationDao.save(reservation);
+        simpleMessage(reservation);
+        return reservation;
     }
 }

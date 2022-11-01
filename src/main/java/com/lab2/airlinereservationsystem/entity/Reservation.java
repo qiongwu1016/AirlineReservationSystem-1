@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,17 +19,20 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reservation_number")
     private String reservationNumber; // primary key
-    @ManyToOne(fetch = FetchType.EAGER)
+
+    @ManyToOne
     @JoinTable(name = "passenger_reservations",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
             inverseJoinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id")})
     private Passenger passenger;     // Full form only
-
+    @Column(name = "origin")
     private String origin;
+    @Column(name = "destination")
     private String destination;
-    private int price; // sum of each flight’s price.   // Full form only
+
+    private Integer price; // sum of each flight’s price.   // Full form only
     // Full form only, CANNOT be empty, ordered chronologically by departureTime
-    @ManyToMany
+    @OneToMany
     @JoinTable(name = "flight_reservation",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
             inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number")})
