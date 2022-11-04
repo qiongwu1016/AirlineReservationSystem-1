@@ -75,11 +75,10 @@ public class PassengerService {
     public Passenger update(Passenger passenger) {
         Passenger originalPassenger = findById(passenger.getId(),QUERY_FORMAT);
         Passenger phonePassenger = passengerDao.findByPhone(passenger.getPhone());
-        if (!Objects.equals(phonePassenger.getId(), passenger.getId())){
+        if (Objects.nonNull(phonePassenger) && !Objects.equals(phonePassenger.getId(), passenger.getId())){
             throw new ErrorExceptionWrapper("another passenger with the same number already exists.");
         }
-        BeanUtil.copyPropertiesIgnoreNull(passenger,originalPassenger);
-        passengerDao.save(originalPassenger);
+        passengerDao.save(passenger);
         simpleReservation(originalPassenger);
         return originalPassenger;
     }

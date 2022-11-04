@@ -13,12 +13,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NoArgsConstructor
 @AllArgsConstructor
 @XmlRootElement
-public class BadResponse {
+public class BadJsonResponse {
     @JsonProperty("BadRequest")
     private Response BadRequest;
 
-    public static BadResponse fail(int code, String msg) {
+    public static BadJsonResponse fail(int code, String msg) {
         Response response =new Response(code, msg != null && !msg.isEmpty() ? msg : "error");
-        return new BadResponse(response);
+        return new BadJsonResponse(response);
     }
 }
