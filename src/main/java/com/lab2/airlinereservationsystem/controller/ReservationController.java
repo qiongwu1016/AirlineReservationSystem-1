@@ -1,6 +1,7 @@
 package com.lab2.airlinereservationsystem.controller;
 
 import com.lab2.airlinereservationsystem.common.domain.Response;
+import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.entity.Reservation;
 import com.lab2.airlinereservationsystem.service.PassengerService;
@@ -22,8 +23,12 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<?> createReservation(@RequestParam(value = "passengerId") String passengerId,
                                                @RequestParam(value = "flightNumbers") List<String> flightNumbers,
+                                               @RequestParam(value = "departureDates") List<String> departureDates,
                                                @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
-        Reservation reservation = reservationService.createReservation(passengerId,flightNumbers);
+        if (flightNumbers.size() != departureDates.size()){
+            throw new ValidExceptionWrapper("flightNumbers not equal departureDates");
+        }
+        Reservation reservation = reservationService.createReservation(passengerId,flightNumbers,departureDates);
         return ResponseUtil.convertResponseEntity(reservation, xml);
     }
 

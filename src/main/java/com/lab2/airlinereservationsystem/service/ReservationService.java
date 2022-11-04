@@ -63,9 +63,16 @@ public class ReservationService {
                 .orElseThrow(() -> new ValidExceptionWrapper(String.format(queryFormat,number)));
     }
 
-    public Reservation createReservation(String passengerId, List<String> flightNumbers) {
+    public Reservation createReservation(String passengerId, List<String> flightNumbers, List<String> departureDates) {
         Passenger passenger = passengerService.findOne(passengerId);
-        List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightNumbers);
+        List<Flight> flightList = new ArrayList<>();
+        for (int i = 0; i < flightNumbers.size(); i++) {
+            Flight flight =flightDao.findFlightByFlightNumberAndDepartureDate(flightNumbers.get(i),DateUtil.getDateDay(departureDates.get(i)));
+            if (null == flight){
+                throw new ErrorExceptionWrapper(String.format("flight not exists , flight num = %s , departureDate = %s ",flightNumbers.get(i),departureDates.get(i)));
+            }
+            flightList.add(flight);
+        }
         DateUtil.checkCurrentReservationFlightsTimings(flightList);
 
         checkWithExistingPassengerReservations(passengerId, flightList);
