@@ -32,7 +32,7 @@ public class PassengerService {
     public void insert(Passenger passenger) {
         //...
         if (passengerDao.existsByPhone(passenger.getPhone())){
-            throw new ValidExceptionWrapper("another passenger with the same number already exists.");
+            throw new ErrorExceptionWrapper("another passenger with the same number already exists.");
         }
         try {
             passengerDao.save(passenger);
