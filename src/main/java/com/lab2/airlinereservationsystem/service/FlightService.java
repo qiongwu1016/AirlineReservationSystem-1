@@ -73,6 +73,7 @@ public class FlightService {
                 .stream()
                 .flatMap(Collection::stream)
                 .flatMap(Collection::stream)
+                .distinct()
                 .collect(Collectors.toList());
         flightList.removeIf(e->e.equals(requestFlight));
         flightList.add(requestFlight);

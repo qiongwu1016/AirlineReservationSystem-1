@@ -16,7 +16,7 @@ public class DateUtil {
 
     public static Date getDateHour(String date){
         try {
-            return new SimpleDateFormat(FORMATTER, Locale.US).parse(date);
+            return new SimpleDateFormat(FORMATTER).parse(date);
         } catch (ParseException e) {
             throw new ValidExceptionWrapper("date convert error:"+date);
         }
@@ -24,7 +24,7 @@ public class DateUtil {
 
     public static Date getDateDay(String date){
         try {
-            return new SimpleDateFormat(DAT_FORMATTER, Locale.US).parse(date);
+            return new SimpleDateFormat(DAT_FORMATTER).parse(date);
         } catch (ParseException e) {
             throw new ValidExceptionWrapper("date convert error:"+date);
         }

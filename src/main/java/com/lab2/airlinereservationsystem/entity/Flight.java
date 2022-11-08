@@ -30,10 +30,10 @@ public class Flight {
      ** Example: 2017-03-22-19
      */
     // Must be within the same calendar day as departureDate.
-    @JsonFormat(pattern = "yyyy-MM-dd-hh")
+    @JsonFormat(pattern = "yyyy-MM-dd-HH")
     private Date departureTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd-hh")
+    @JsonFormat(pattern = "yyyy-MM-dd-HH")
     private Date arrivalTime;
     // Full form only
 
@@ -64,7 +64,8 @@ public class Flight {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Flight flight = (Flight) o;
-        return Objects.equals(flightNumber, flight.flightNumber) && Objects.equals(departureDate, flight.departureDate);
+        return Objects.equals(flightNumber, flight.flightNumber)
+                && departureDate.compareTo(flight.departureDate) == 0;
     }
 
     @Override
