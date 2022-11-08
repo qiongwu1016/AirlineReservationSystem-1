@@ -29,7 +29,7 @@ public class Passenger {
 
     private String phone; // Phone numbers must be unique.   Full form only
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "passenger_reservations",
             joinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id",insertable = false,updatable = false)},
             inverseJoinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number",insertable = false,updatable = false)})
