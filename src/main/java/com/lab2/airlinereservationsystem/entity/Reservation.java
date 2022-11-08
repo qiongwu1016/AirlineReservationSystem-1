@@ -32,7 +32,7 @@ public class Reservation {
 
     private Integer price; // sum of each flight’s price.   // Full form only
     // Full form only, CANNOT be empty, ordered chronologically by departureTime
-    @OneToMany
+    @ManyToMany
     @JsonBackReference
     @JoinTable(name = "flight_reservation",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
