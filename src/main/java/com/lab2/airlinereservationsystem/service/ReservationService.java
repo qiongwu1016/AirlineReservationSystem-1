@@ -127,7 +127,7 @@ public class ReservationService {
                 Date min = currentPassengerFlights.get(j).getDepartureTime();
                 Date max = currentPassengerFlights.get(j).getArrivalTime();
                 if ((currentFlightArrivalDate.compareTo(min) >= 0 && currentFlightArrivalDate.compareTo(max) <= 0) || (currentFlightDepartureDate.compareTo(min) >= 0 && currentFlightDepartureDate.compareTo(max) <= 0)) {
-                    throw new ValidExceptionWrapper("Sorry, the timings of flights: "
+                    throw new ErrorExceptionWrapper("Sorry, the timings of flights: "
                             + flight.getFlightNumber() + " and " + flightList.get(j).getFlightNumber() + " overlap");
                 }
             }

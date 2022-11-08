@@ -1,14 +1,13 @@
 package com.lab2.airlinereservationsystem.utils;
 
+import com.lab2.airlinereservationsystem.common.exception.ErrorExceptionWrapper;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.entity.Flight;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class DateUtil {
     private static final String FORMATTER = "yyyy-MM-dd-hh";
@@ -46,7 +45,7 @@ public class DateUtil {
                 Date min=flightList.get(j).getDepartureTime();
                 Date max=flightList.get(j).getArrivalTime();
                 if((currentFlightArrivalDate.compareTo(min)>=0 && currentFlightArrivalDate.compareTo(max)<=0) || (currentFlightDepartureDate.compareTo(min)>=0 && currentFlightDepartureDate.compareTo(max)<=0)){
-                    throw new ValidExceptionWrapper("Sorry, the timings of flights: "
+                    throw new ErrorExceptionWrapper("Sorry, the timings of flights: "
                             +flightList.get(0).getFlightNumber() +" and "+ flightList.get(1).getFlightNumber()+" overlap" );
                 }
             }
