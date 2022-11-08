@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.controller;
 
+import com.lab2.airlinereservationsystem.common.domain.JsonResponse;
 import com.lab2.airlinereservationsystem.common.domain.Response;
 import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.service.PassengerService;
@@ -53,7 +54,7 @@ public class PassengerController {
                                              @RequestParam(value = "xml",required = false,defaultValue = "false")boolean xml){
         passengerService.delete(id);
         String returnMsg = String.format("Passenger with id %s is deleted successfully",id);
-        return ResponseUtil.convertResponseEntity(Response.success(returnMsg),xml);
+        return ResponseUtil.convertResponseEntity(JsonResponse.success(200,returnMsg),xml);
     }
 
 }
