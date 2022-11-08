@@ -81,6 +81,7 @@ public class FlightService {
 
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void delete(String flightNumber, String departureDate) {
         Flight flight = flightDao.findFlightByFlightNumberAndDepartureDate(flightNumber,DateUtil.getDateDay(departureDate));
         if (Objects.isNull(flight)){
