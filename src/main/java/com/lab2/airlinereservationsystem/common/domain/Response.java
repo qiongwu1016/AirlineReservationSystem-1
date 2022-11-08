@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @Getter
 @Setter
-@XmlRootElement
+@XmlRootElement(name = "Response")
 @NoArgsConstructor
 public class Response {
     private int code;

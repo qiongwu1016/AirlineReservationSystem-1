@@ -75,7 +75,7 @@ public class PassengerService {
         Passenger originalPassenger = findById(passenger.getId(),QUERY_FORMAT);
         Passenger phonePassenger = passengerDao.findByPhone(passenger.getPhone());
         if (Objects.nonNull(phonePassenger) && !Objects.equals(phonePassenger.getId(), passenger.getId())){
-            throw new ErrorExceptionWrapper("another passenger with the same number already exists.");
+            throw new ValidExceptionWrapper("another passenger with the same number already exists.");
         }
         passengerDao.save(passenger);
         simpleReservation(originalPassenger);
