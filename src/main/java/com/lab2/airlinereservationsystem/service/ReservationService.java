@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,7 +113,7 @@ public class ReservationService {
     }
 
     private void checkWithExistingPassengerReservations(String passengerId, List<Flight> flightList){
-        List<Reservation> reservations=passengerService.findOne(passengerId).getReservations();
+        Set<Reservation> reservations=passengerService.findOne(passengerId).getReservations();
         List<Flight> currentPassengerFlights=new ArrayList<>();
         for(Reservation reservation:reservations){
             currentPassengerFlights.addAll(reservation.getFlights());

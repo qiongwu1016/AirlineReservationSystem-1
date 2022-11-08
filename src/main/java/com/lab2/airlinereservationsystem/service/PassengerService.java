@@ -6,14 +6,13 @@ import com.lab2.airlinereservationsystem.dao.PassengerDao;
 import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.entity.Reservation;
-import com.lab2.airlinereservationsystem.utils.BeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class PassengerService {
@@ -55,7 +54,7 @@ public class PassengerService {
     }
 
     private void simpleReservation(Passenger passenger) {
-        List<Reservation> reservationList = passenger.getReservations();
+        Set<Reservation> reservationList = passenger.getReservations();
         if (!CollectionUtils.isEmpty(reservationList)){
             reservationList.forEach(e->{
                 e.setPrice(null);
@@ -76,7 +75,7 @@ public class PassengerService {
         Passenger originalPassenger = findById(passenger.getId(),QUERY_FORMAT);
         Passenger phonePassenger = passengerDao.findByPhone(passenger.getPhone());
         if (Objects.nonNull(phonePassenger) && !Objects.equals(phonePassenger.getId(), passenger.getId())){
-            throw new ValidExceptionWrapper("another passenger with the same number already exists.");
+            throw new ErrorExceptionWrapper("another passenger with the same number already exists.");
         }
         passengerDao.save(passenger);
         simpleReservation(originalPassenger);

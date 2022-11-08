@@ -20,7 +20,7 @@ public class Reservation {
     @Column(name = "reservation_number")
     private String reservationNumber; // primary key
 
-    @ManyToOne
+    @OneToOne(targetEntity = Passenger.class)
     @JoinTable(name = "passenger_reservations",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
             inverseJoinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id")})
@@ -33,9 +33,11 @@ public class Reservation {
     private Integer price; // sum of each flight’s price.   // Full form only
     // Full form only, CANNOT be empty, ordered chronologically by departureTime
     @OneToMany
+    @JsonBackReference
     @JoinTable(name = "flight_reservation",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
-            inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number")})
+            inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number"),
+                    @JoinColumn(name = "departure_date", referencedColumnName = "departure_date")})
     private List<Flight> flights;
 
     public Reservation(Passenger passenger, List<Flight> flightList) {

@@ -1,13 +1,12 @@
 package com.lab2.airlinereservationsystem.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -32,9 +31,9 @@ public class Passenger {
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "passenger_reservations",
-            joinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")})
-    private List<Reservation> reservations;   // Full form only
+            joinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id",insertable = false,updatable = false)},
+            inverseJoinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number",insertable = false,updatable = false)})
+    private Set<Reservation> reservations;   // Full form only
 
     public Passenger(String firstname, String lastname, int birthyear, String gender, String phone) {
         this.firstname = firstname;

@@ -6,23 +6,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
 @Entity
 @Getter
 @Setter
-@XmlRootElement
+@IdClass(FlightKey.class)
 public class Flight {
     // part of the primary key
     @Id
-    @Column(name = "flight_number")
+    @Column(name = "flight_number",nullable = false)
     private String flightNumber;
 
     /*  Date format: yy-mm-dd, do not include hours, minutes, or seconds.
      ** Example: 2022-03-22
      **The system only needs to support PST. You can ignore other time zones.
      */
+    @Id
+    @Column(name = "departure_date",nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date departureDate; //  serve as the primary key together with flightNumber
 
@@ -51,10 +52,11 @@ public class Flight {
     @Transient
     private List<Passenger> passengers;
 
-    @ManyToMany(targetEntity = Reservation.class, cascade = CascadeType.ALL)
+    @ManyToMany(targetEntity = Reservation.class, cascade = CascadeType.PERSIST)
     @JsonBackReference
     @JoinTable(name = "flight_reservation",
-            joinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number")},
+            joinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number"),
+                            @JoinColumn(name = "departure_date", referencedColumnName = "departure_date")},
             inverseJoinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")}
     )
     private List<Reservation> reservations;
