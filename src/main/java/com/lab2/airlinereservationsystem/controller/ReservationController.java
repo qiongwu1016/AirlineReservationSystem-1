@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.controller;
 
+import com.lab2.airlinereservationsystem.common.domain.JsonResponse;
 import com.lab2.airlinereservationsystem.common.domain.Response;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.entity.Passenger;
@@ -52,7 +53,7 @@ public class ReservationController {
                                              @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
         reservationService.delete(number);
         String returnMsg = String.format("Reservation with number %s is canceled successfully", number);
-        return ResponseUtil.convertResponseEntity(Response.success(returnMsg), xml);
+        return ResponseUtil.convertResponseEntity(xml ? Response.success(returnMsg) : JsonResponse.success(200,returnMsg),xml);
     }
 
 }
