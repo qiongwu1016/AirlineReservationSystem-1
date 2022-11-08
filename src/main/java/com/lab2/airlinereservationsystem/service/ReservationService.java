@@ -105,7 +105,7 @@ public class ReservationService {
     private void checkSeats(List<Flight> flightList) {
         for(Flight flight : flightList){
             if(flight.getSeatsLeft() <= 0) {
-                throw new ValidExceptionWrapper("Sorry, the requested flight with id "
+                throw new ErrorExceptionWrapper("Sorry, the requested flight with id "
                         + flight.getSeatsLeft() +" is full" );
             }
         }
