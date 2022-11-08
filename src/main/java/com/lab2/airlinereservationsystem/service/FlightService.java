@@ -33,7 +33,7 @@ public class FlightService {
         }
         List<Passenger> passengers = passengerDao.getPassengerByFlightNumberAndDepartureDate(flightNumber, DateUtil.getDateDay(departureDate));
 
-        flight.setPassengers(BeanUtil.simplePassenger(passengers));
+        if (!passengers.isEmpty()) flight.setPassengers(BeanUtil.simplePassenger(passengers));
 
         return flight;
     }
@@ -61,7 +61,10 @@ public class FlightService {
             requestFlight.setSeatsLeft(requestFlight.getPlane().getCapacity() - saleSeats);
         }
         flightDao.save(requestFlight);
-        requestFlight.setPassengers(passengerDao.getPassengerByFlightNumberAndDepartureDate(requestFlight.getFlightNumber(), requestFlight.getDepartureDate()));
+        List<Passenger> passengerByFlightNumberAndDepartureDate = passengerDao.getPassengerByFlightNumberAndDepartureDate(requestFlight.getFlightNumber(), requestFlight.getDepartureDate());
+        if (!passengerByFlightNumberAndDepartureDate.isEmpty()) {
+            requestFlight.setPassengers(passengerByFlightNumberAndDepartureDate);
+        }
     }
 
     private void checkReversions(Flight flight, Flight requestFlight) {
