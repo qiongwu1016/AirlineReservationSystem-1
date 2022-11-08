@@ -6,11 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
 @Entity
 @Getter
 @Setter
+@XmlRootElement
 @IdClass(FlightKey.class)
 public class Flight {
     // part of the primary key
