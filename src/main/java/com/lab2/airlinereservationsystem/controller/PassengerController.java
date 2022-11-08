@@ -54,7 +54,7 @@ public class PassengerController {
                                              @RequestParam(value = "xml",required = false,defaultValue = "false")boolean xml){
         passengerService.delete(id);
         String returnMsg = String.format("Passenger with id %s is deleted successfully",id);
-        return ResponseUtil.convertResponseEntity(JsonResponse.success(200,returnMsg),xml);
+        return ResponseUtil.convertResponseEntity(xml ? Response.success(returnMsg) : JsonResponse.success(200,returnMsg),xml);
     }
 
 }

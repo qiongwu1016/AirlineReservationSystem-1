@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.common.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +19,6 @@ public class Response {
         this.code = code;
         this.msg = msg;
     }
-
 
     public static Response success(String msg){
         return new Response(200,msg);

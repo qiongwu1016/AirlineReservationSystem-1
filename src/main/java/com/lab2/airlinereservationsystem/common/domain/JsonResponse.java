@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@XmlRootElement(name = "Response")
+@XmlRootElement
 public class JsonResponse {
     @JsonProperty("Response")
     private Response Response;
