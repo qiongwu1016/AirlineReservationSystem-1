@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,10 +78,11 @@ public class ReservationService {
 
         decreaseFlightSeats(flightList);
         flightList = flightList.stream()
-                .sorted((a,b) -> a.getDepartureTime().compareTo(b.getDepartureDate()))
+                .sorted(Comparator.comparing(Flight::getDepartureTime))
                 .collect(Collectors.toList());
         Reservation reservation = new Reservation(passenger, flightList);
-        passenger.getReservations().add(reservation);
+        flightList.forEach(e->e.setReservations(null));
+        passenger.setReservations(null);
         int price = 0;
         for(Flight flight : flightList){
             price+=flight.getPrice();
@@ -92,6 +90,7 @@ public class ReservationService {
         reservation.setPrice(price);
         reservation.setOrigin(flightList.get(0).getOrigin());
         reservation.setDestination(flightList.get(flightList.size() -1).getDestination());
+        reservation.setFlights(flightList);
         reservationDao.save(reservation);
         simpleMessage(reservation);
         return reservation;
@@ -116,7 +115,10 @@ public class ReservationService {
         Set<Reservation> reservations=passengerService.findOne(passengerId).getReservations();
         List<Flight> currentPassengerFlights=new ArrayList<>();
         for(Reservation reservation:reservations){
-            currentPassengerFlights.addAll(reservation.getFlights());
+            if (!CollectionUtils.isEmpty(reservation.getFlights())){
+                currentPassengerFlights.addAll(reservation.getFlights());
+            }
+
         }
         for (Flight flight : flightList) {
             for (int j = 0; j < currentPassengerFlights.size(); j++) {
