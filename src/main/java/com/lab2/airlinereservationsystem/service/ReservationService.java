@@ -113,9 +113,12 @@ public class ReservationService {
 
     private void checkWithExistingPassengerReservations(String passengerId, List<Flight> flightList){
         Set<Reservation> reservations=passengerService.findOne(passengerId).getReservations();
+        System.out.print("from [checkWithExistingPassengerReservations] passengerId: ");
+        System.out.println(passengerId);
         List<Flight> currentPassengerFlights=new ArrayList<>();
         for(Reservation reservation:reservations){
             if (!CollectionUtils.isEmpty(reservation.getFlights())){
+                System.out.println("checkpoint at reservation.getFlights is empty.");
                 currentPassengerFlights.addAll(reservation.getFlights());
             }
 
