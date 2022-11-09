@@ -1,6 +1,5 @@
 package com.lab2.airlinereservationsystem.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,7 +32,6 @@ public class Reservation {
     private Integer price; // sum of each flight’s price.   // Full form only
     // Full form only, CANNOT be empty, ordered chronologically by departureTime
     @ManyToMany
-    @JsonBackReference
     @JoinTable(name = "flight_reservation",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
             inverseJoinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number"),

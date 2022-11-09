@@ -3,6 +3,7 @@ package com.lab2.airlinereservationsystem.service;
 import com.lab2.airlinereservationsystem.common.exception.ErrorExceptionWrapper;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.dao.FlightDao;
+import com.lab2.airlinereservationsystem.dao.PassengerDao;
 import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Flight;
 import com.lab2.airlinereservationsystem.entity.Passenger;
@@ -31,6 +32,8 @@ public class ReservationService {
 
     @Autowired
     private FlightDao flightDao;
+    @Autowired
+    private PassengerDao passengerDao;
 
     public Reservation findOne(String number) {
         Reservation reservation =findById(number,QUERY_FORMAT);
@@ -83,6 +86,7 @@ public class ReservationService {
         Reservation reservation = new Reservation(passenger, flightList);
         flightList.forEach(e->e.setReservations(null));
         passenger.setReservations(null);
+        flightList.forEach(e->e.setPassengers(null));
         int price = 0;
         for(Flight flight : flightList){
             price+=flight.getPrice();
@@ -112,11 +116,21 @@ public class ReservationService {
     }
 
     private void checkWithExistingPassengerReservations(String passengerId, List<Flight> flightList){
-        Set<Reservation> reservations=passengerService.findOne(passengerId).getReservations();
+        Set<Reservation> reservations= passengerDao.findById(passengerId)
+                .orElseThrow(() -> new ValidExceptionWrapper(String.format("Sorry, the requested passenger with ID %s does not exist",passengerId)))
+                .getReservations();
         List<Flight> currentPassengerFlights=new ArrayList<>();
         for(Reservation reservation:reservations){
-            if (!CollectionUtils.isEmpty(reservation.getFlights())){
-                currentPassengerFlights.addAll(reservation.getFlights());
+            List<Map<String,Object>> resFlightDtos = reservationDao.findFlightNoAndDate(reservation.getReservationNumber());
+            List<Flight> resFlights = new ArrayList<>();
+            resFlightDtos.forEach( e->{
+                Flight flight = flightDao.findFlightByFlightNumberAndDepartureDate((String) e.get("flightNumber"),(Date) e.get("departureDate"));
+                if (null != flight){
+                    resFlights.add(flight);
+                }
+            });
+            if (!CollectionUtils.isEmpty(resFlights)){
+                currentPassengerFlights.addAll(resFlights);
             }
 
         }
@@ -126,7 +140,10 @@ public class ReservationService {
                 Date currentFlightArrivalDate = flight.getArrivalTime();
                 Date min = currentPassengerFlights.get(j).getDepartureTime();
                 Date max = currentPassengerFlights.get(j).getArrivalTime();
-                if ((currentFlightArrivalDate.compareTo(min) >= 0 && currentFlightArrivalDate.compareTo(max) <= 0) || (currentFlightDepartureDate.compareTo(min) >= 0 && currentFlightDepartureDate.compareTo(max) <= 0)) {
+                if ((currentFlightArrivalDate.compareTo(min) >= 0
+                        && currentFlightArrivalDate.compareTo(max) <= 0)
+                        || (currentFlightDepartureDate.compareTo(min) >= 0
+                        && currentFlightDepartureDate.compareTo(max) <= 0)) {
                     throw new ErrorExceptionWrapper("Sorry, the timings of flights: "
                             + flight.getFlightNumber() + " and " + flightList.get(j).getFlightNumber() + " overlap");
                 }
