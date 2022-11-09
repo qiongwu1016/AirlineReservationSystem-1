@@ -84,9 +84,9 @@ public class ReservationService {
                 .sorted(Comparator.comparing(Flight::getDepartureTime))
                 .collect(Collectors.toList());
         Reservation reservation = new Reservation(passenger, flightList);
-        flightList.forEach(e->e.setReservations(null));
-        passenger.setReservations(null);
-        flightList.forEach(e->e.setPassengers(null));
+        //flightList.forEach(e->e.setReservations(null));
+        //passenger.setReservations(null);
+        //flightList.forEach(e->e.setPassengers(null));
         int price = 0;
         for(Flight flight : flightList){
             price+=flight.getPrice();
@@ -144,8 +144,7 @@ public class ReservationService {
                         && currentFlightArrivalDate.compareTo(max) <= 0)
                         || (currentFlightDepartureDate.compareTo(min) >= 0
                         && currentFlightDepartureDate.compareTo(max) <= 0)) {
-                    throw new ErrorExceptionWrapper("Sorry, the timings of flights: "
-                            + flight.getFlightNumber() + " and " + flightList.get(j).getFlightNumber() + " overlap");
+                    throw new ErrorExceptionWrapper("Sorry, the time of flights overlaps");
                 }
             }
         }
