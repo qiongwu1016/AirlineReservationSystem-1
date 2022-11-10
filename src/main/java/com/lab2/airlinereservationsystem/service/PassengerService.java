@@ -6,6 +6,7 @@ import com.lab2.airlinereservationsystem.dao.PassengerDao;
 import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.entity.Reservation;
+import com.lab2.airlinereservationsystem.entity.SimplePassenger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class PassengerService {
 
     public Passenger findOne(String id) {
         Passenger passenger =findById(id,QUERY_FORMAT);
-        simpleReservation(passenger);
+        //simpleReservation(passenger);
         return passenger;
     }
 
