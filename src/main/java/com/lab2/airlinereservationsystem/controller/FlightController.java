@@ -3,15 +3,22 @@ package com.lab2.airlinereservationsystem.controller;
 import com.lab2.airlinereservationsystem.common.domain.JsonResponse;
 import com.lab2.airlinereservationsystem.common.domain.Response;
 import com.lab2.airlinereservationsystem.entity.Flight;
+import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.entity.Plane;
 import com.lab2.airlinereservationsystem.entity.Reservation;
 import com.lab2.airlinereservationsystem.service.FlightService;
+import com.lab2.airlinereservationsystem.utils.BeanUtil;
 import com.lab2.airlinereservationsystem.utils.DateUtil;
 import com.lab2.airlinereservationsystem.utils.ResponseUtil;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("flight")
@@ -24,6 +31,20 @@ public class FlightController {
                                            @PathVariable("departureDate")String departureDate,
                                            @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml){
         Flight flight = flightService.findOne(flightNumber,departureDate);
+        List<Passenger> passengers = flight.getPassengers();
+        if (!CollectionUtils.isEmpty(passengers)) {
+            passengers.forEach(passenger -> {
+                BeanUtil.convertPassengerSimpleForm(passenger);
+            });
+        }
+        flight.setPassengers(passengers);
+
+        List<Reservation> reservations = flight.getReservations();
+        if (!CollectionUtils.isEmpty(reservations)){
+            reservations.forEach(reservation -> {
+                BeanUtil.convertReservationSimpleForm(reservation);
+            });
+        }
         return ResponseUtil.convertResponseEntity(flight, xml);
     }
 
@@ -53,7 +74,23 @@ public class FlightController {
         requestFlight.setPlane(new Plane(model,capacity,manufacturer,yearOfManufacture));
         requestFlight.setSeatsLeft(capacity);
         flightService.createOrUpdateFlight(requestFlight);
-        return ResponseUtil.convertResponseEntity(requestFlight, xml);
+        Flight flight = flightService.findOne(requestFlight.getFlightNumber(), DateUtil.getDateDay(requestFlight.getDepartureDate()));
+
+        List<Passenger> passengers = flight.getPassengers();
+        if (!CollectionUtils.isEmpty(passengers)) {
+            passengers.forEach(passenger -> {
+                BeanUtil.convertPassengerSimpleForm(passenger);
+            });
+        }
+        flight.setPassengers(passengers);
+
+        List<Reservation> reservations = flight.getReservations();
+        if (!CollectionUtils.isEmpty(reservations)){
+            reservations.forEach(reservation -> {
+                BeanUtil.convertReservationSimpleForm(reservation);
+            });
+        }
+        return ResponseUtil.convertResponseEntity(flight, xml);
     }
 
     @DeleteMapping("{flightNumber}/{departureDate}")

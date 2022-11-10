@@ -1,6 +1,8 @@
 package com.lab2.airlinereservationsystem.utils;
 
+import com.lab2.airlinereservationsystem.entity.Flight;
 import com.lab2.airlinereservationsystem.entity.Passenger;
+import com.lab2.airlinereservationsystem.entity.Reservation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -30,6 +32,25 @@ public class BeanUtil extends BeanUtils {
         newPassenger.setGender(null);
         return newPassenger;
 
+    }
+
+    public static void convertPassengerSimpleForm(Passenger passenger){
+        passenger.setReservations(null);
+        passenger.setPhone(null);
+        passenger.setBirthyear(null);
+        passenger.setGender(null);
+    }
+    public static void convertReservationSimpleForm(Reservation reservation) {
+        reservation.setFlights(null);
+        reservation.setPrice(null);
+        reservation.setPassenger(null);
+    }
+
+    public static void convertFlightSimpleForm(Flight flight) {
+        flight.setPrice(null);
+        flight.setDescription(null);
+        flight.setPlane(null);
+        flight.setPassengers(null);
     }
 
 }

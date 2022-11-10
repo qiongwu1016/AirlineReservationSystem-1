@@ -3,11 +3,17 @@ package com.lab2.airlinereservationsystem.controller;
 import com.lab2.airlinereservationsystem.common.domain.JsonResponse;
 import com.lab2.airlinereservationsystem.common.domain.Response;
 import com.lab2.airlinereservationsystem.entity.Passenger;
+import com.lab2.airlinereservationsystem.entity.Reservation;
 import com.lab2.airlinereservationsystem.service.PassengerService;
+import com.lab2.airlinereservationsystem.utils.BeanUtil;
 import com.lab2.airlinereservationsystem.utils.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("passenger")
@@ -33,6 +39,12 @@ public class PassengerController {
     public ResponseEntity<?> getPassenger(@PathVariable String id,
                                           @RequestParam(value = "xml",required = false,defaultValue = "false")boolean xml){
         Passenger passenger = passengerService.findOne(id);
+        Set<Reservation> reservations = passenger.getReservations();
+        if (!CollectionUtils.isEmpty(reservations)){
+            for (Reservation reservation : reservations) {
+                BeanUtil.convertReservationSimpleForm(reservation);
+            }
+        }
         return ResponseUtil.convertResponseEntity(passenger,xml);
     }
 
@@ -46,7 +58,14 @@ public class PassengerController {
                                             @RequestParam(value = "xml",required = false,defaultValue = "false")boolean xml){
         Passenger passenger = new Passenger(firstname,lastname,birthyear,gender,phone);
         passenger.setId(id);
-        return ResponseUtil.convertResponseEntity(passengerService.update(passenger),xml);
+        Passenger responsePassenger = passengerService.update(passenger);
+        Set<Reservation> reservations = responsePassenger.getReservations();
+        if (!CollectionUtils.isEmpty(reservations)) {
+            reservations.forEach(reservation -> {
+                BeanUtil.convertReservationSimpleForm(reservation);
+            });
+        }
+        return ResponseUtil.convertResponseEntity(responsePassenger,xml);
     }
 
     @DeleteMapping("{id}")

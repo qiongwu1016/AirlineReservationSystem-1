@@ -4,6 +4,7 @@ import com.lab2.airlinereservationsystem.common.exception.ErrorExceptionWrapper;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.dao.FlightDao;
 import com.lab2.airlinereservationsystem.dao.PassengerDao;
+import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Flight;
 import com.lab2.airlinereservationsystem.entity.Passenger;
 import com.lab2.airlinereservationsystem.entity.Reservation;
@@ -26,6 +27,9 @@ public class FlightService {
     @Autowired
     private PassengerDao passengerDao;
 
+    @Autowired
+    private ReservationDao reservationDao;
+
     public Flight findOne(String flightNumber, String departureDate) {
         Flight flight = flightDao.findFlightByFlightNumberAndDepartureDate(flightNumber, DateUtil.getDateDay(departureDate));
         if (flight == null) {
@@ -34,6 +38,9 @@ public class FlightService {
         List<Passenger> passengers = passengerDao.getPassengerByFlightNumberAndDepartureDate(flightNumber, DateUtil.getDateDay(departureDate));
 
         if (!passengers.isEmpty()) flight.setPassengers(BeanUtil.simplePassenger(passengers));
+
+//        List<Reservation> reservations = reservationDao.findReservationByFlightNumber(flightNumber);
+//        if (!reservations.isEmpty()) flight.setReservations(reservations);
 
         return flight;
     }
@@ -53,21 +60,31 @@ public class FlightService {
             if (requestFlight.getPlane().getCapacity() < flight.getReservations().size()) {
                 throw new ErrorExceptionWrapper("New capacity can't be less than the reservations for that flight!");
             }
-            int saleSeats = flight.getPlane().getCapacity() - flight.getSeatsLeft();
-            if (saleSeats > requestFlight.getPlane().getCapacity()) {
-                throw new ErrorExceptionWrapper("Capacity can't be negative value!");
+//            int saleSeats = flight.getPlane().getCapacity() - flight.getSeatsLeft();
+//            if (saleSeats > requestFlight.getPlane().getCapacity()) {
+//                throw new ErrorExceptionWrapper("Capacity can't be negative value!");
+//            }
+//            checkReversions(flight, requestFlight);
+            requestFlight.setSeatsLeft(requestFlight.getPlane().getCapacity() - flight.getReservations().size());
+            List<Passenger> passengerByFlightNumberAndDepartureDate = passengerDao.getPassengerByFlightNumberAndDepartureDate(requestFlight.getFlightNumber(), requestFlight.getDepartureDate());
+            if (!passengerByFlightNumberAndDepartureDate.isEmpty()) {
+                requestFlight.setPassengers(passengerByFlightNumberAndDepartureDate);
             }
-            //checkReversions(flight, requestFlight);
-            flight.setSeatsLeft(requestFlight.getPlane().getCapacity() - saleSeats);
-            flightDao.save(flight);
+            List<Reservation> reservationsByFlightNumber = reservationDao.findReservationByFlightNumber(requestFlight.getFlightNumber());
+            if (!reservationsByFlightNumber.isEmpty()) {
+                requestFlight.setReservations(reservationsByFlightNumber);
+            }
+            flightDao.save(requestFlight);
+
         }
         else {
+            List<Passenger> passengerByFlightNumberAndDepartureDate = passengerDao.getPassengerByFlightNumberAndDepartureDate(requestFlight.getFlightNumber(), requestFlight.getDepartureDate());
+            if (!passengerByFlightNumberAndDepartureDate.isEmpty()) {
+                requestFlight.setPassengers(passengerByFlightNumberAndDepartureDate);
+            }
             flightDao.save(requestFlight);
         }
-        List<Passenger> passengerByFlightNumberAndDepartureDate = passengerDao.getPassengerByFlightNumberAndDepartureDate(requestFlight.getFlightNumber(), requestFlight.getDepartureDate());
-        if (!passengerByFlightNumberAndDepartureDate.isEmpty()) {
-            requestFlight.setPassengers(passengerByFlightNumberAndDepartureDate);
-        }
+
     }
 
     private void checkReversions(Flight flight, Flight requestFlight) {

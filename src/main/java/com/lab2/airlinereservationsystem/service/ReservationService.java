@@ -35,7 +35,7 @@ public class ReservationService {
 
     public Reservation findOne(String number) {
         Reservation reservation =findById(number,QUERY_FORMAT);
-//        simpleMessage(reservation);
+        simpleMessage(reservation);
         return reservation;
     }
 
@@ -43,6 +43,13 @@ public class ReservationService {
         if (null != reservation.getPassenger()){
             reservation.setPassenger(BeanUtil.simplePassenger(reservation.getPassenger()));
         }
+        Passenger passenger = reservation.getPassenger();
+        passenger.setReservations(null);
+        passenger.setBirthyear(null);
+        passenger.setGender(null);
+        passenger.setPhone(null);
+        reservation.setPassenger(passenger);
+
         if (!CollectionUtils.isEmpty(reservation.getFlights())){
             List<Flight> flightList = reservation.getFlights();
             flightList.forEach(flight -> {
@@ -64,21 +71,18 @@ public class ReservationService {
 
     public Reservation createReservation(String passengerId, List<String> flightNumbers, List<String> departureDates) {
         Passenger passenger = passengerService.findOne(passengerId);
-        SimplePassenger simplePassenger = new SimplePassenger(passenger.getId(),passenger.getFirstname(), passenger.getLastname());
-//        List<SimpleFlight> simpleFlightList = new ArrayList<>();
         List<Flight> flightList = new ArrayList<>();
         for (int i = 0; i < flightNumbers.size(); i++) {
             Flight flight =flightDao.findFlightByFlightNumberAndDepartureDate(flightNumbers.get(i),DateUtil.getDateDay(departureDates.get(i)));
             if (null == flight){
                 throw new ErrorExceptionWrapper(String.format("flight not exists , flight num = %s , departureDate = %s ",flightNumbers.get(i),departureDates.get(i)));
             }
-            SimpleFlight simpleFlight = new SimpleFlight(flight.getFlightNumber(), flight.getDepartureDate(), flight.getDepartureTime(), flight.getArrivalTime(), flight.getOrigin(), flight.getDestination(), flight.getSeatsLeft());
-//            simpleFlightList.add(simpleFlight);
+
             flightList.add(flight);
         }
-//        DateUtil.checkCurrentReservationFlightsTimings(flightList);
+        DateUtil.checkCurrentReservationFlightsTimings(flightList);
 //
-//        checkWithExistingPassengerReservations(passengerId, flightList);
+        checkWithExistingPassengerReservations(passengerId, flightList);
         checkSeats(flightList);
 
         decreaseFlightSeats(flightList);
@@ -111,8 +115,8 @@ public class ReservationService {
     private void checkSeats(List<Flight> flightList) {
         for(Flight flight : flightList){
             if(flight.getSeatsLeft() <= 0) {
-                throw new ErrorExceptionWrapper("Sorry, the requested flight with id "
-                        + flight.getSeatsLeft() +" is full" );
+                throw new ErrorExceptionWrapper("Sorry, the requested flight with id " +
+                         flight.getFlightNumber() +" is full");
             }
         }
     }
