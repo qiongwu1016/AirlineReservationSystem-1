@@ -65,7 +65,7 @@ public class ReservationService {
     }
 
     public Reservation createReservation(String passengerId, List<String> flightNumbers, List<String> departureDates) {
-        Passenger passenger = passengerService.findOne(passengerId);
+        Passenger passenger = passengerDao.findById(passengerId).get();
         List<Flight> flightList = new ArrayList<>();
         for (int i = 0; i < flightNumbers.size(); i++) {
             Flight flight =flightDao.findFlightByFlightNumberAndDepartureDate(flightNumbers.get(i),DateUtil.getDateDay(departureDates.get(i)));
@@ -84,9 +84,10 @@ public class ReservationService {
                 .sorted(Comparator.comparing(Flight::getDepartureTime))
                 .collect(Collectors.toList());
         Reservation reservation = new Reservation(passenger, flightList);
-        //flightList.forEach(e->e.setReservations(null));
-        //passenger.setReservations(null);
-        //flightList.forEach(e->e.setPassengers(null));
+//        passenger.getReservations().add(reservation);
+//        flightList.forEach(e->e.setReservations(null));
+//        passenger.setReservations(null);
+        flightList.forEach(e->e.setPassengers(null));
         int price = 0;
         for(Flight flight : flightList){
             price+=flight.getPrice();
@@ -94,7 +95,6 @@ public class ReservationService {
         reservation.setPrice(price);
         reservation.setOrigin(flightList.get(0).getOrigin());
         reservation.setDestination(flightList.get(flightList.size() -1).getDestination());
-        reservation.setFlights(flightList);
         reservationDao.save(reservation);
         simpleMessage(reservation);
         return reservation;
@@ -163,17 +163,22 @@ public class ReservationService {
 
     public Reservation updateReservation(String number, List<String> flightAddList, List<String> flightRemoveList) {
         Reservation reservation = findById(number,QUERY_FORMAT);
-        if (CollectionUtils.isEmpty(flightAddList)) {
+        if (null != flightAddList && CollectionUtils.isEmpty(flightAddList)) {
             throw new ErrorExceptionWrapper("flightsAdded list cannot be empty,if param exists");
         }
-        if (CollectionUtils.isEmpty(flightRemoveList)) {
+        if (null != flightRemoveList && CollectionUtils.isEmpty(flightRemoveList)) {
             throw new ErrorExceptionWrapper("flightRemove list cannot be empty,if param exists");
         }
         List<Flight> reservationFlights = reservation.getFlights();
-        if (!CollectionUtils.isEmpty(reservationFlights) && reservationFlights.stream()
-                .map(Flight::getFlightNumber)
-                .collect(Collectors.toList())
-                .retainAll(flightAddList)){
+        if (CollectionUtils.isEmpty(flightAddList)){
+            flightAddList = new ArrayList<>();
+        }
+        if (CollectionUtils.isEmpty(flightRemoveList)){
+            flightRemoveList = new ArrayList<>();
+        }
+        List<String> finalFlightAddList = flightAddList;
+        boolean exists = reservationFlights.stream().anyMatch(e-> finalFlightAddList.contains(e.getFlightNumber()));
+        if (!CollectionUtils.isEmpty(reservationFlights) && exists){
             throw new ErrorExceptionWrapper("flight number is already exists in reservation");
         }
         flightAddList.removeIf(flightRemoveList::contains);
@@ -186,7 +191,8 @@ public class ReservationService {
                 flightDao.save(flight);
             }
         }
-        reservationFlights.removeIf(e->flightRemoveList.contains(e.getFlightNumber()));
+        List<String> finalFlightRemoveList = flightRemoveList;
+        reservationFlights.removeIf(e-> finalFlightRemoveList.contains(e.getFlightNumber()));
 
         List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightAddList);
         if (flightList.size() != flightAddList.size()){

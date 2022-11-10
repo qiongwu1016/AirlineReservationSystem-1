@@ -52,9 +52,10 @@ public class Flight {
     private Plane plane;
     // Full form only
     @Transient
+    @JsonBackReference
     private List<Passenger> passengers;
 
-    @ManyToMany
+    @ManyToMany(targetEntity = Reservation.class, cascade = CascadeType.PERSIST)
     @JsonBackReference
     @JoinTable(name = "flight_reservation",
             joinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number"),

@@ -40,10 +40,10 @@ public class ReservationController {
         return ResponseUtil.convertResponseEntity(reservation, xml);
     }
 
-    @PutMapping("{number}")
+    @PostMapping("{number}")
     public ResponseEntity<?> updateReservation(@PathVariable String number,
                                              @RequestParam(value = "flightsAdded",required = false) List<String> flightAddList,
-                                             @RequestParam(value = "flightsRemoved") List<String> flightRemoveList,
+                                             @RequestParam(value = "flightsRemoved",required = false) List<String> flightRemoveList,
                                              @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
         return ResponseUtil.convertResponseEntity(reservationService.updateReservation(number,flightAddList,flightRemoveList), xml);
     }
