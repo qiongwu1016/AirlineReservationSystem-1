@@ -24,11 +24,12 @@ public class BeanUtil extends BeanUtils {
     public static Passenger simplePassenger(Passenger passenger){
         Passenger newPassenger = new Passenger();
         copyProperties(passenger,newPassenger);
-        newPassenger.setReservations(null);
+//        newPassenger.setReservations(null);
         newPassenger.setBirthyear(null);
         newPassenger.setPhone(null);
         newPassenger.setGender(null);
         return newPassenger;
+
     }
 
 }

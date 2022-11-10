@@ -215,7 +215,7 @@ public class ReservationService {
         reservation.setOrigin(reservationFlights.get(0).getOrigin());
         reservation.setDestination(reservationFlights.get(reservationFlights.size() - 1).getDestination());
         reservation = reservationDao.save(reservation);
-//        simpleMessage(reservation);
+        simpleMessage(reservation);
         return reservation;
     }
 }

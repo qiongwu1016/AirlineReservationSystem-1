@@ -57,10 +57,13 @@ public class FlightService {
             if (saleSeats > requestFlight.getPlane().getCapacity()) {
                 throw new ErrorExceptionWrapper("Capacity can't be negative value!");
             }
-            checkReversions(flight, requestFlight);
-            requestFlight.setSeatsLeft(requestFlight.getPlane().getCapacity() - saleSeats);
+            //checkReversions(flight, requestFlight);
+            flight.setSeatsLeft(requestFlight.getPlane().getCapacity() - saleSeats);
+            flightDao.save(flight);
         }
-        flightDao.save(requestFlight);
+        else {
+            flightDao.save(requestFlight);
+        }
         List<Passenger> passengerByFlightNumberAndDepartureDate = passengerDao.getPassengerByFlightNumberAndDepartureDate(requestFlight.getFlightNumber(), requestFlight.getDepartureDate());
         if (!passengerByFlightNumberAndDepartureDate.isEmpty()) {
             requestFlight.setPassengers(passengerByFlightNumberAndDepartureDate);
