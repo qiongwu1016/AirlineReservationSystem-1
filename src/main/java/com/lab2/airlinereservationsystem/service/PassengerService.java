@@ -32,10 +32,7 @@ public class PassengerService {
     private ReservationDao reservationDao;
     @Autowired
     private FlightDao flightDao;
-
-    @Autowired
-    private FlightDao flightDao;
-
+    
     @Transactional(rollbackFor = Exception.class)
     public void insert(Passenger passenger) {
         //...
