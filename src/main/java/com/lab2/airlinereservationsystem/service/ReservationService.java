@@ -20,7 +20,7 @@ public class ReservationService {
 
     private static final String QUERY_FORMAT = "Reservation with number %s does not exist";
 
-    private static final String DELETE_FORMATTER = "Reservation with number %s does not exist ";
+    private static final String DELETE_FORMAT = "Reservation with number %s does not exist ";
 
     @Autowired
     private ReservationDao reservationDao;
@@ -158,7 +158,7 @@ public class ReservationService {
 
 
     public void delete(String number) {
-        Reservation reservation = findById(number,DELETE_FORMATTER);
+        Reservation reservation = findById(number,DELETE_FORMAT);
         List<Flight> flightList = reservation.getFlights();
         for (Flight flight:flightList){
             flight.setSeatsLeft(flight.getSeatsLeft()+1);
@@ -168,7 +168,7 @@ public class ReservationService {
     }
 
     public void addFlights(String reservationNumber, List<String> flightAddList){
-        Reservation reservation = findOne(reservationNumber);
+        Reservation reservation = findById(reservationNumber, QUERY_FORMAT);
         List<Flight> flightList = reservation.getFlights();
         for (String flightNumber: flightAddList) {
             Boolean thisFlightExist = false;

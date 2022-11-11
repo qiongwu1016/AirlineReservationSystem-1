@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import com.lab2.airlinereservationsystem.dao.FlightDao;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -27,6 +29,9 @@ public class PassengerService {
 
     @Autowired
     private ReservationDao reservationDao;
+
+    @Autowired
+    private FlightDao flightDao;
 
     @Transactional(rollbackFor = Exception.class)
     public void insert(Passenger passenger) {
@@ -44,8 +49,25 @@ public class PassengerService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(String id) {
         //check exists
-        findById(id,DELETE_FORMATTER);
-        passengerDao.deleteById(id);
+        Passenger passenger = findById(id,DELETE_FORMATTER);
+        //reset flight
+        //check reservation
+        List<Reservation> reservationList = reservationDao.findAll();
+        for (Reservation reservation:reservationList){
+            if (reservation.getPassenger() != null && reservation.getPassenger().getId().equals(id)){
+                reservationDao.delete(reservation);
+            }
+        }
+
+        passenger.getReservations().forEach(reservation -> {
+            reservation.getFlights().forEach(flight -> {
+                flight.setSeatsLeft(flight.getSeatsLeft() +1);
+                flightDao.save(flight);
+            });
+        });
+        passengerDao.delete(passenger);
+
+
     }
 
     public Passenger findOne(String id) {

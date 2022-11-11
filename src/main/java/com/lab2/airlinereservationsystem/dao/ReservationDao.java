@@ -1,5 +1,6 @@
 package com.lab2.airlinereservationsystem.dao;
 
+import com.lab2.airlinereservationsystem.entity.Flight;
 import com.lab2.airlinereservationsystem.entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
