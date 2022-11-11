@@ -51,6 +51,7 @@ public class Flight {
     private Plane plane;
     // Full form only
     @Transient
+    @JsonBackReference
     private List<Passenger> passengers;
 
     @ManyToMany
