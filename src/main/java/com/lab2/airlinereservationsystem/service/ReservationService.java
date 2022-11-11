@@ -70,7 +70,7 @@ public class ReservationService {
     }
 
     public Reservation createReservation(String passengerId, List<String> flightNumbers, List<String> departureDates) {
-        Passenger passenger = passengerService.findOne(passengerId);
+        Passenger passenger = passengerDao.findById(passengerId).get();
         List<Flight> flightList = new ArrayList<>();
         for (int i = 0; i < flightNumbers.size(); i++) {
             Flight flight =flightDao.findFlightByFlightNumberAndDepartureDate(flightNumbers.get(i),DateUtil.getDateDay(departureDates.get(i)));
@@ -90,9 +90,10 @@ public class ReservationService {
                 .sorted(Comparator.comparing(Flight::getDepartureTime))
                 .collect(Collectors.toList());
         Reservation reservation = new Reservation(passenger, flightList);
-        //flightList.forEach(e->e.setReservations(null));
-        //passenger.setReservations(null);
-        //flightList.forEach(e->e.setPassengers(null));
+//        passenger.getReservations().add(reservation);
+//        flightList.forEach(e->e.setReservations(null));
+//        passenger.setReservations(null);
+        flightList.forEach(e->e.setPassengers(null));
         int price = 0;
         for(Flight flight : flightList){
             price+=flight.getPrice();
@@ -100,7 +101,6 @@ public class ReservationService {
         reservation.setPrice(price);
         reservation.setOrigin(flightList.get(0).getOrigin());
         reservation.setDestination(flightList.get(flightList.size() -1).getDestination());
-        reservation.setFlights(flightList);
         reservationDao.save(reservation);
         simpleMessage(reservation);
         return reservation;
@@ -175,6 +175,7 @@ public class ReservationService {
             for (Flight flight: flightList){
                 if (flight.getFlightNumber() == flightNumber){
                     thisFlightExist = true;
+
                 }
                 if (thisFlightExist == true) throw new ErrorExceptionWrapper("flight number is already exists in reservation");
             }

@@ -2,6 +2,7 @@ package com.lab2.airlinereservationsystem.service;
 
 import com.lab2.airlinereservationsystem.common.exception.ErrorExceptionWrapper;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
+import com.lab2.airlinereservationsystem.dao.FlightDao;
 import com.lab2.airlinereservationsystem.dao.PassengerDao;
 import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Passenger;
@@ -29,6 +30,8 @@ public class PassengerService {
 
     @Autowired
     private ReservationDao reservationDao;
+    @Autowired
+    private FlightDao flightDao;
 
     @Autowired
     private FlightDao flightDao;
