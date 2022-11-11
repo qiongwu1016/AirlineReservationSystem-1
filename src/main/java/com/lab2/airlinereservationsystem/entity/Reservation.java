@@ -19,7 +19,7 @@ public class Reservation {
     @Column(name = "reservation_number")
     private String reservationNumber; // primary key
 
-    @OneToOne(targetEntity = Passenger.class)
+    @ManyToOne(targetEntity = Passenger.class)
     @JoinTable(name = "passenger_reservations",
             joinColumns = {@JoinColumn(name = "reservation_number", referencedColumnName = "reservation_number")},
             inverseJoinColumns = {@JoinColumn(name = "passenger_id", referencedColumnName = "id")})

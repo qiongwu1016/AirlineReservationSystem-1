@@ -1,6 +1,5 @@
 package com.lab2.airlinereservationsystem.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,17 +25,17 @@ public class Flight {
      */
     @Id
     @Column(name = "departure_date",nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "America/Los_Angeles")
     private Date departureDate; //  serve as the primary key together with flightNumber
 
     /*  Date format: yy-mm-dd-hh, do not include minutes or seconds.
      ** Example: 2017-03-22-19
      */
     // Must be within the same calendar day as departureDate.
-    @JsonFormat(pattern = "yyyy-MM-dd-HH")
+    @JsonFormat(pattern = "yyyy-MM-dd-HH", timezone = "America/Los_Angeles")
     private Date departureTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd-HH")
+    @JsonFormat(pattern = "yyyy-MM-dd-HH", timezone = "America/Los_Angeles")
     private Date arrivalTime;
     // Full form only
 
@@ -44,7 +43,7 @@ public class Flight {
     private String origin;
     private String destination;
 
-    private int seatsLeft;
+    private Integer seatsLeft;
     // Full form only
     private String description;
     @Embedded
@@ -55,8 +54,7 @@ public class Flight {
     @JsonBackReference
     private List<Passenger> passengers;
 
-    @ManyToMany(targetEntity = Reservation.class, cascade = CascadeType.PERSIST)
-    @JsonBackReference
+    @ManyToMany
     @JoinTable(name = "flight_reservation",
             joinColumns = {@JoinColumn(name = "flight_number", referencedColumnName = "flight_number"),
                             @JoinColumn(name = "departure_date", referencedColumnName = "departure_date")},

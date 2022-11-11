@@ -5,9 +5,7 @@ import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.dao.FlightDao;
 import com.lab2.airlinereservationsystem.dao.PassengerDao;
 import com.lab2.airlinereservationsystem.dao.ReservationDao;
-import com.lab2.airlinereservationsystem.entity.Flight;
-import com.lab2.airlinereservationsystem.entity.Passenger;
-import com.lab2.airlinereservationsystem.entity.Reservation;
+import com.lab2.airlinereservationsystem.entity.*;
 import com.lab2.airlinereservationsystem.utils.BeanUtil;
 import com.lab2.airlinereservationsystem.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,7 @@ public class ReservationService {
 
     private static final String QUERY_FORMAT = "Reservation with number %s does not exist";
 
-    private static final String DELETE_FORMATTER = "Reservation with number %s does not exist ";
+    private static final String DELETE_FORMAT = "Reservation with number %s does not exist ";
 
     @Autowired
     private ReservationDao reservationDao;
@@ -45,6 +43,13 @@ public class ReservationService {
         if (null != reservation.getPassenger()){
             reservation.setPassenger(BeanUtil.simplePassenger(reservation.getPassenger()));
         }
+        Passenger passenger = reservation.getPassenger();
+        passenger.setReservations(null);
+        passenger.setBirthyear(null);
+        passenger.setGender(null);
+        passenger.setPhone(null);
+        reservation.setPassenger(passenger);
+
         if (!CollectionUtils.isEmpty(reservation.getFlights())){
             List<Flight> flightList = reservation.getFlights();
             flightList.forEach(flight -> {
@@ -72,10 +77,11 @@ public class ReservationService {
             if (null == flight){
                 throw new ErrorExceptionWrapper(String.format("flight not exists , flight num = %s , departureDate = %s ",flightNumbers.get(i),departureDates.get(i)));
             }
+
             flightList.add(flight);
         }
         DateUtil.checkCurrentReservationFlightsTimings(flightList);
-
+//
         checkWithExistingPassengerReservations(passengerId, flightList);
         checkSeats(flightList);
 
@@ -109,8 +115,8 @@ public class ReservationService {
     private void checkSeats(List<Flight> flightList) {
         for(Flight flight : flightList){
             if(flight.getSeatsLeft() <= 0) {
-                throw new ErrorExceptionWrapper("Sorry, the requested flight with id "
-                        + flight.getSeatsLeft() +" is full" );
+                throw new ErrorExceptionWrapper("Sorry, the requested flight with id " +
+                         flight.getFlightNumber() +" is full");
             }
         }
     }
@@ -152,7 +158,7 @@ public class ReservationService {
 
 
     public void delete(String number) {
-        Reservation reservation = findById(number,DELETE_FORMATTER);
+        Reservation reservation = findById(number,DELETE_FORMAT);
         List<Flight> flightList = reservation.getFlights();
         for (Flight flight:flightList){
             flight.setSeatsLeft(flight.getSeatsLeft()+1);
@@ -161,65 +167,81 @@ public class ReservationService {
         reservationDao.deleteById(reservation.getReservationNumber());
     }
 
-    public Reservation updateReservation(String number, List<String> flightAddList, List<String> flightRemoveList) {
-        Reservation reservation = findById(number,QUERY_FORMAT);
-        if (null != flightAddList && CollectionUtils.isEmpty(flightAddList)) {
-            throw new ErrorExceptionWrapper("flightsAdded list cannot be empty,if param exists");
-        }
-        if (null != flightRemoveList && CollectionUtils.isEmpty(flightRemoveList)) {
-            throw new ErrorExceptionWrapper("flightRemove list cannot be empty,if param exists");
-        }
-        List<Flight> reservationFlights = reservation.getFlights();
-        if (CollectionUtils.isEmpty(flightAddList)){
-            flightAddList = new ArrayList<>();
-        }
-        if (CollectionUtils.isEmpty(flightRemoveList)){
-            flightRemoveList = new ArrayList<>();
-        }
-        List<String> finalFlightAddList = flightAddList;
-        boolean exists = reservationFlights.stream().anyMatch(e-> finalFlightAddList.contains(e.getFlightNumber()));
-        if (!CollectionUtils.isEmpty(reservationFlights) && exists){
-            throw new ErrorExceptionWrapper("flight number is already exists in reservation");
-        }
-        flightAddList.removeIf(flightRemoveList::contains);
-        int price = reservation.getPrice();
-        for (Flight flight: reservationFlights){
-            if (flightRemoveList.contains(flight.getFlightNumber())){
-                price-=flight.getPrice();
-                //add seat
-                flight.setSeatsLeft(flight.getSeatsLeft()+1);
-                flightDao.save(flight);
-            }
-        }
-        List<String> finalFlightRemoveList = flightRemoveList;
-        reservationFlights.removeIf(e-> finalFlightRemoveList.contains(e.getFlightNumber()));
+    public void addFlights(String reservationNumber, List<String> flightAddList){
+        Reservation reservation = findById(reservationNumber, QUERY_FORMAT);
+        List<Flight> flightList = reservation.getFlights();
+        for (String flightNumber: flightAddList) {
+            Boolean thisFlightExist = false;
+            for (Flight flight: flightList){
+                if (flight.getFlightNumber() == flightNumber){
+                    thisFlightExist = true;
 
-        List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightAddList);
-        if (flightList.size() != flightAddList.size()){
-            throw new ErrorExceptionWrapper("flight number not found!");
-        }
-        if (!CollectionUtils.isEmpty(flightList)){
-            for (Flight flight:flightList){
-                price+=flight.getPrice();
-                flight.setSeatsLeft(flight.getSeatsLeft() - 1);
-                if (flight.getSeatsLeft()<0){
-                    throw new ErrorExceptionWrapper("The total amount of passengers can not exceed the capacity of the reserved plane.");
                 }
-                reservationFlights.add(flight);
+                if (thisFlightExist == true) throw new ErrorExceptionWrapper("flight number is already exists in reservation");
             }
         }
 
-        DateUtil.checkCurrentReservationFlightsTimings(reservationFlights);
-        flightDao.saveAll(flightList);
-        reservationFlights = reservationFlights.stream()
-                .sorted((a,b) -> a.getDepartureTime().compareTo(b.getDepartureDate()))
-                .collect(Collectors.toList());
-        reservation.setFlights(reservationFlights);
-        reservation.setPrice(price);
-        reservation.setOrigin(reservationFlights.get(0).getOrigin());
-        reservation.setDestination(reservationFlights.get(reservationFlights.size() - 1).getDestination());
-        reservation = reservationDao.save(reservation);
-        simpleMessage(reservation);
-        return reservation;
     }
+
+    public void removeFlights(String reservationNumber, List<String> flightRemoveList){
+        Reservation reservation = findOne(reservationNumber);
+
+
+    }
+
+//    public Reservation updateReservation(String number, List<String> flightAddList, List<String> flightRemoveList) {
+//        Reservation reservation = findById(number,QUERY_FORMAT);
+////        if (CollectionUtils.isEmpty(flightAddList)) {
+////            throw new ErrorExceptionWrapper("flightsAdded list cannot be empty,if param exists");
+////        }
+//        if (CollectionUtils.isEmpty(flightRemoveList)) {
+//            throw new ErrorExceptionWrapper("flightRemove list cannot be empty,if param exists");
+//        }
+//        List<Flight> reservationFlights = reservation.getFlights();
+//        if (!CollectionUtils.isEmpty(reservationFlights) && reservationFlights.stream()
+//                .map(Flight::getFlightNumber)
+//                .collect(Collectors.toList())
+//                .retainAll(flightAddList)){
+//            throw new ErrorExceptionWrapper("flight number is already exists in reservation");
+//        }
+//        flightAddList.removeIf(flightRemoveList::contains);
+//        int price = reservation.getPrice();
+//        for (Flight flight: reservationFlights){
+//            if (flightRemoveList.contains(flight.getFlightNumber())){
+//                price-=flight.getPrice();
+//                //add seat
+//                flight.setSeatsLeft(flight.getSeatsLeft()+1);
+//                flightDao.save(flight);
+//            }
+//        }
+//        reservationFlights.removeIf(e->flightRemoveList.contains(e.getFlightNumber()));
+//
+//        List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightAddList);
+//        if (flightList.size() != flightAddList.size()){
+//            throw new ErrorExceptionWrapper("flight number not found!");
+//        }
+//        if (!CollectionUtils.isEmpty(flightList)){
+//            for (Flight flight:flightList){
+//                price+=flight.getPrice();
+//                flight.setSeatsLeft(flight.getSeatsLeft() - 1);
+//                if (flight.getSeatsLeft()<0){
+//                    throw new ErrorExceptionWrapper("The total amount of passengers can not exceed the capacity of the reserved plane.");
+//                }
+//                reservationFlights.add(flight);
+//            }
+//        }
+//
+//        DateUtil.checkCurrentReservationFlightsTimings(reservationFlights);
+//        flightDao.saveAll(flightList);
+//        reservationFlights = reservationFlights.stream()
+//                .sorted((a,b) -> a.getDepartureTime().compareTo(b.getDepartureDate()))
+//                .collect(Collectors.toList());
+//        reservation.setFlights(reservationFlights);
+//        reservation.setPrice(price);
+//        reservation.setOrigin(reservationFlights.get(0).getOrigin());
+//        reservation.setDestination(reservationFlights.get(reservationFlights.size() - 1).getDestination());
+//        reservation = reservationDao.save(reservation);
+//        simpleMessage(reservation);
+//        return reservation;
+//    }
 }
