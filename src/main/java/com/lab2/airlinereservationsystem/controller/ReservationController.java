@@ -2,6 +2,7 @@ package com.lab2.airlinereservationsystem.controller;
 
 import com.lab2.airlinereservationsystem.common.domain.JsonResponse;
 import com.lab2.airlinereservationsystem.common.domain.Response;
+import com.lab2.airlinereservationsystem.common.exception.ErrorExceptionWrapper;
 import com.lab2.airlinereservationsystem.common.exception.ValidExceptionWrapper;
 import com.lab2.airlinereservationsystem.dao.ReservationDao;
 import com.lab2.airlinereservationsystem.entity.Passenger;
@@ -64,10 +65,12 @@ public class ReservationController {
         System.out.println(flightAddList);
         System.out.println(flightRemoveList);
         if (!CollectionUtils.isEmpty(flightAddList)){
-            reservationService.addFlights(number, flightAddList);
+            throw new ErrorExceptionWrapper("You need to specify a departure date when add a flight to the reservation.");
+//            reservationService.addFlights(number, flightAddList);
         }
         if (!CollectionUtils.isEmpty(flightRemoveList)){
-            reservationService.removeFlights(number, flightRemoveList);
+            throw new ErrorExceptionWrapper("You need to specify a departure date when remove a flight from the reservation.");
+//            reservationService.removeFlights(number, flightRemoveList);
         }
 
         Reservation reservation = reservationService.findOne(number);
