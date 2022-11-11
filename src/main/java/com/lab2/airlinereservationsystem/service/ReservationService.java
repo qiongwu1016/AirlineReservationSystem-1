@@ -167,59 +167,80 @@ public class ReservationService {
         reservationDao.deleteById(reservation.getReservationNumber());
     }
 
-    public Reservation updateReservation(String number, List<String> flightAddList, List<String> flightRemoveList) {
-        Reservation reservation = findById(number,QUERY_FORMAT);
-        if (CollectionUtils.isEmpty(flightAddList)) {
-            throw new ErrorExceptionWrapper("flightsAdded list cannot be empty,if param exists");
-        }
-        if (CollectionUtils.isEmpty(flightRemoveList)) {
-            throw new ErrorExceptionWrapper("flightRemove list cannot be empty,if param exists");
-        }
-        List<Flight> reservationFlights = reservation.getFlights();
-        if (!CollectionUtils.isEmpty(reservationFlights) && reservationFlights.stream()
-                .map(Flight::getFlightNumber)
-                .collect(Collectors.toList())
-                .retainAll(flightAddList)){
-            throw new ErrorExceptionWrapper("flight number is already exists in reservation");
-        }
-        flightAddList.removeIf(flightRemoveList::contains);
-        int price = reservation.getPrice();
-        for (Flight flight: reservationFlights){
-            if (flightRemoveList.contains(flight.getFlightNumber())){
-                price-=flight.getPrice();
-                //add seat
-                flight.setSeatsLeft(flight.getSeatsLeft()+1);
-                flightDao.save(flight);
-            }
-        }
-        reservationFlights.removeIf(e->flightRemoveList.contains(e.getFlightNumber()));
-
-        List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightAddList);
-        if (flightList.size() != flightAddList.size()){
-            throw new ErrorExceptionWrapper("flight number not found!");
-        }
-        if (!CollectionUtils.isEmpty(flightList)){
-            for (Flight flight:flightList){
-                price+=flight.getPrice();
-                flight.setSeatsLeft(flight.getSeatsLeft() - 1);
-                if (flight.getSeatsLeft()<0){
-                    throw new ErrorExceptionWrapper("The total amount of passengers can not exceed the capacity of the reserved plane.");
+    public void addFlights(String reservationNumber, List<String> flightAddList){
+        Reservation reservation = findOne(reservationNumber);
+        List<Flight> flightList = reservation.getFlights();
+        for (String flightNumber: flightAddList) {
+            Boolean thisFlightExist = false;
+            for (Flight flight: flightList){
+                if (flight.getFlightNumber() == flightNumber){
+                    thisFlightExist = true;
                 }
-                reservationFlights.add(flight);
+                if (thisFlightExist == true) throw new ErrorExceptionWrapper("flight number is already exists in reservation");
             }
         }
 
-        DateUtil.checkCurrentReservationFlightsTimings(reservationFlights);
-        flightDao.saveAll(flightList);
-        reservationFlights = reservationFlights.stream()
-                .sorted((a,b) -> a.getDepartureTime().compareTo(b.getDepartureDate()))
-                .collect(Collectors.toList());
-        reservation.setFlights(reservationFlights);
-        reservation.setPrice(price);
-        reservation.setOrigin(reservationFlights.get(0).getOrigin());
-        reservation.setDestination(reservationFlights.get(reservationFlights.size() - 1).getDestination());
-        reservation = reservationDao.save(reservation);
-        simpleMessage(reservation);
-        return reservation;
     }
+
+    public void removeFlights(String reservationNumber, List<String> flightRemoveList){
+        Reservation reservation = findOne(reservationNumber);
+
+
+    }
+
+//    public Reservation updateReservation(String number, List<String> flightAddList, List<String> flightRemoveList) {
+//        Reservation reservation = findById(number,QUERY_FORMAT);
+////        if (CollectionUtils.isEmpty(flightAddList)) {
+////            throw new ErrorExceptionWrapper("flightsAdded list cannot be empty,if param exists");
+////        }
+//        if (CollectionUtils.isEmpty(flightRemoveList)) {
+//            throw new ErrorExceptionWrapper("flightRemove list cannot be empty,if param exists");
+//        }
+//        List<Flight> reservationFlights = reservation.getFlights();
+//        if (!CollectionUtils.isEmpty(reservationFlights) && reservationFlights.stream()
+//                .map(Flight::getFlightNumber)
+//                .collect(Collectors.toList())
+//                .retainAll(flightAddList)){
+//            throw new ErrorExceptionWrapper("flight number is already exists in reservation");
+//        }
+//        flightAddList.removeIf(flightRemoveList::contains);
+//        int price = reservation.getPrice();
+//        for (Flight flight: reservationFlights){
+//            if (flightRemoveList.contains(flight.getFlightNumber())){
+//                price-=flight.getPrice();
+//                //add seat
+//                flight.setSeatsLeft(flight.getSeatsLeft()+1);
+//                flightDao.save(flight);
+//            }
+//        }
+//        reservationFlights.removeIf(e->flightRemoveList.contains(e.getFlightNumber()));
+//
+//        List<Flight> flightList = flightDao.findFlightsByFlightNumberIn(flightAddList);
+//        if (flightList.size() != flightAddList.size()){
+//            throw new ErrorExceptionWrapper("flight number not found!");
+//        }
+//        if (!CollectionUtils.isEmpty(flightList)){
+//            for (Flight flight:flightList){
+//                price+=flight.getPrice();
+//                flight.setSeatsLeft(flight.getSeatsLeft() - 1);
+//                if (flight.getSeatsLeft()<0){
+//                    throw new ErrorExceptionWrapper("The total amount of passengers can not exceed the capacity of the reserved plane.");
+//                }
+//                reservationFlights.add(flight);
+//            }
+//        }
+//
+//        DateUtil.checkCurrentReservationFlightsTimings(reservationFlights);
+//        flightDao.saveAll(flightList);
+//        reservationFlights = reservationFlights.stream()
+//                .sorted((a,b) -> a.getDepartureTime().compareTo(b.getDepartureDate()))
+//                .collect(Collectors.toList());
+//        reservation.setFlights(reservationFlights);
+//        reservation.setPrice(price);
+//        reservation.setOrigin(reservationFlights.get(0).getOrigin());
+//        reservation.setDestination(reservationFlights.get(reservationFlights.size() - 1).getDestination());
+//        reservation = reservationDao.save(reservation);
+//        simpleMessage(reservation);
+//        return reservation;
+//    }
 }
