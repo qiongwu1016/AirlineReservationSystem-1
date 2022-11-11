@@ -44,6 +44,8 @@ public class PassengerController {
             for (Reservation reservation : reservations) {
                 BeanUtil.convertReservationSimpleForm(reservation);
             }
+        } else {
+            passenger.setReservations(null);
         }
         return ResponseUtil.convertResponseEntity(passenger,xml);
     }
