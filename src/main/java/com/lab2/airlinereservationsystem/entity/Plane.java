@@ -8,6 +8,10 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+/**
+ * @Author Yikang Chen, Qiong Wu
+ * The entity class of Plane
+ */
 @Embeddable
 @Getter
 @Setter

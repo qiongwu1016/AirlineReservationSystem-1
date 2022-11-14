@@ -19,7 +19,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
+/**
+ * @Author Yikang chen, Qiong Wu
+ * Services for Flight Controller
+ */
 @Service
 public class FlightService {
     @Autowired

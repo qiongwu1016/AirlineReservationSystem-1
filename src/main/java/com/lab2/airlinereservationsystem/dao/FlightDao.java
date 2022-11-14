@@ -9,7 +9,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
-
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * DAO class for Flight
+ */
 @Repository
 public interface FlightDao extends JpaRepository<Flight, String> {
 

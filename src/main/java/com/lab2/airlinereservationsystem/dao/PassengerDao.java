@@ -9,6 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * DAO class for Passenger
+ */
 @Repository
 public interface PassengerDao extends JpaRepository<Passenger, String> {
 

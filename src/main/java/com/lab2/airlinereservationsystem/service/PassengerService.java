@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * @Author Yikang chen, Qiong Wu
+ * Services for Passenger Controller
+ */
 @Service
 public class PassengerService {
 

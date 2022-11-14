@@ -2,7 +2,10 @@ package com.lab2.airlinereservationsystem.utils;
 
 
 import org.springframework.http.ResponseEntity;
-
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * Response related Utils function
+ */
 public class ResponseUtil {
     private ResponseUtil() {
         throw new IllegalStateException("ResponseUtil class");

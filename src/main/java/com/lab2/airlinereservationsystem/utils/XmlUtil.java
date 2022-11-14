@@ -6,7 +6,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
-
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * Utils function for xml format
+ */
 public class XmlUtil {
 
     private XmlUtil() {

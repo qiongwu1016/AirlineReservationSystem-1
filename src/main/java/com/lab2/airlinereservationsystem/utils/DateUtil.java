@@ -9,6 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * Some Date related Utils function
+ */
 public class DateUtil {
     private static final String FORMATTER = "yyyy-MM-dd-hh";
     private static final String DAT_FORMATTER = "yyyy-MM-dd";

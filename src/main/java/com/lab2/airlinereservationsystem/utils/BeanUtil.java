@@ -11,6 +11,10 @@ import org.springframework.util.CollectionUtils;
 import java.beans.PropertyDescriptor;
 import java.util.*;
 
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * Some Bean related Utils function
+ */
 public class BeanUtil extends BeanUtils {
 
 

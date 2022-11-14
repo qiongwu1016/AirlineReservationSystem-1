@@ -8,6 +8,10 @@ import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
+/**
+ * @Author Yikang Chen, Qiong Wu
+ * The entity class of Reservation
+ */
 @Entity
 @Setter
 @Getter

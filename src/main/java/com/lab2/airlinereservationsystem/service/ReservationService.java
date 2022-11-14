@@ -18,6 +18,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * @Author Yikang chen, Qiong Wu
+ * Services for Reservation Controller to call
+ */
 @Service
 public class ReservationService {
 

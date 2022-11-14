@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * @Author Yikang chen, Qiong Wu
+ * Services for Reservation Controller to call
+ */
 @RestController
 @RequestMapping("reservation")
 public class ReservationController {
@@ -30,6 +34,14 @@ public class ReservationController {
     @Autowired
     private ReservationDao reservationDao;
 
+    /**
+     * @Author Yikang chen, Qiong Wu
+     * @param passengerId
+     * @param flightNumbers
+     * @param departureDates
+     * @param xml If true return response in xml format, false in json format.
+     * Make a reservation for a passenger on one or more flights.
+     */
     @PostMapping
     public ResponseEntity<?> createReservation(@RequestParam(value = "passengerId") String passengerId,
                                                @RequestParam(value = "flightNumbers") List<String> flightNumbers,
@@ -42,6 +54,12 @@ public class ReservationController {
         return ResponseUtil.convertResponseEntity(reservation, xml);
     }
 
+    /**
+     * @Author Yikang chen, Qiong Wu
+     * @param number Reservation Number
+     * @param xml If true return response in xml format, false in json format
+     * Get a reservation by reservation number.
+     */
     @GetMapping("{number}")
     public ResponseEntity<?> getReservation(@PathVariable String number,
                                           @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
@@ -57,6 +75,16 @@ public class ReservationController {
         return ResponseUtil.convertResponseEntity(reservation, xml);
     }
 
+    /**
+     * @Author Yikang chen, Qiong Wu
+     * @param number reservation number to specify the reservation to be modified
+     * @param flightAddList flight list to be added
+     * @param departureDateAddList departure date list of the flights to be added
+     * @param departureDateRemoveList departure date list of the flights to be removed
+     * @param flightRemoveList flight list to be removed
+     * @param xml If true return response in xml format, false in json format.
+     * Update a reservation by reservation number.
+     */
     @PostMapping("{number}")
     public ResponseEntity<?> updateReservation(@PathVariable String number,
                                                @RequestParam(value = "flightsAdded",required = false) List<String> flightAddList,
@@ -98,6 +126,12 @@ public class ReservationController {
         return ResponseUtil.convertResponseEntity(reservation, xml);
     }
 
+    /**
+     * @Author Yikang chen, Qiong Wu
+     * @param number reservation number to specify the reservation to be deleted
+     * @param xml If true return response in xml format, false in json format.
+     * Delete a reservation by reservation nubmer.
+     */
     @DeleteMapping("{number}")
     public ResponseEntity<?> deleteReservation(@PathVariable("number") String number,
                                              @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {

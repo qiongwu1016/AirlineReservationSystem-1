@@ -8,6 +8,10 @@ import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Set;
 
+/**
+ * @Author Yikang Chen, Qiong Wu
+ * The entity class of Passenger
+ */
 @Entity
 @Getter
 @Setter

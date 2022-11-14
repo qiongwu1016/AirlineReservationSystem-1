@@ -10,6 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @Arthor Yikang Chen, Qiong Wu
+ * DAO class for Reservation
+ */
 @Repository
 public interface ReservationDao extends JpaRepository<Reservation, String> {
     @Query(value = "SELECT fr.flight_number as flightNumber,fr.departure_date as departureDate  FROM flight_reservation fr WHERE fr.reservation_number = :reservationNumber",

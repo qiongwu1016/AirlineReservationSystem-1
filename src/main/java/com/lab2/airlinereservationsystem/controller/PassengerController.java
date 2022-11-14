@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Author Yikang Chen, Qiong Wu
+ * Map HTTP request for reservation, call corresponding services
+ */
 @RestController
 @RequestMapping("passenger")
 public class PassengerController {
@@ -22,6 +26,15 @@ public class PassengerController {
     @Autowired
     private PassengerService passengerService;
 
+    /**
+     * @param firstname Passenger's info
+     * @param lastname Passenger's info
+     * @param birthyear Passenger's info
+     * @param gender Passenger's info
+     * @param phone Passenger's info
+     * @param xml If true return response in xml format, false in json format.
+     * Create a new passenger's profile
+     */
     @PostMapping
     public ResponseEntity<?> insertPassenger(@RequestParam("firstname") String firstname,
                                              @RequestParam("lastname") String lastname,
@@ -35,6 +48,12 @@ public class PassengerController {
         return ResponseUtil.convertResponseEntity(passenger,xml);
     }
 
+    /**
+     * Get a passenger by passenger Id
+     * @param id
+     * @param xml If true return response in xml format, false in json format.
+     * @return
+     */
     @GetMapping("{id}")
     public ResponseEntity<?> getPassenger(@PathVariable String id,
                                           @RequestParam(value = "xml",required = false,defaultValue = "false")boolean xml){
@@ -50,6 +69,16 @@ public class PassengerController {
         return ResponseUtil.convertResponseEntity(passenger,xml);
     }
 
+    /**
+     * Update a passenger's profile with all the passenger's fields
+     * @param id
+     * @param firstname
+     * @param lastname
+     * @param birthyear
+     * @param gender
+     * @param phone
+     * @param xml If true return response in xml format, false in json format.
+     */
     @PutMapping("{id}")
     public ResponseEntity<?>updatePassenger(@PathVariable String id,
                                             @RequestParam("firstname") String firstname,
@@ -70,6 +99,11 @@ public class PassengerController {
         return ResponseUtil.convertResponseEntity(responsePassenger,xml);
     }
 
+    /**
+     * Delete a passenger by passenger Id
+     * @param id
+     * @param xml If true return response in xml format, false in json format.
+     */
     @DeleteMapping("{id}")
     public ResponseEntity<?> deletePassenger(@PathVariable("id") String id,
                                              @RequestParam(value = "xml",required = false,defaultValue = "false")boolean xml){
