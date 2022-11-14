@@ -59,21 +59,23 @@ public class ReservationController {
 
     @PostMapping("{number}")
     public ResponseEntity<?> updateReservation(@PathVariable String number,
-                                             @RequestParam(value = "flightsAdded",required = false, defaultValue = "") List<String> flightAddList,
-                                             @RequestParam(value = "flightsRemoved",required = false, defaultValue = "") List<String> flightRemoveList,
-                                             @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
-        System.out.println(flightAddList);
-        System.out.println(flightRemoveList);
-        if (!CollectionUtils.isEmpty(flightAddList)){
-            throw new ErrorExceptionWrapper("You need to specify a departure date when add a flight to the reservation.");
-//            reservationService.addFlights(number, flightAddList);
-        }
-        if (!CollectionUtils.isEmpty(flightRemoveList)){
-            throw new ErrorExceptionWrapper("You need to specify a departure date when remove a flight from the reservation.");
-//            reservationService.removeFlights(number, flightRemoveList);
-        }
+                                               @RequestParam(value = "flightsAdded",required = false, defaultValue = "") List<String> flightAddList,
+                                               @RequestParam(value = "departureDatesAdded", required = false, defaultValue = "") List<String> departureDateAddList,
+                                               @RequestParam(value = "departureDatesRemoved", required = false, defaultValue = "") List<String> departureDateRemoveList,
+                                               @RequestParam(value = "flightsRemoved",required = false, defaultValue = "") List<String> flightRemoveList,
+                                               @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
 
-        Reservation reservation = reservationService.findOne(number);
+        if (flightAddList.size() != departureDateAddList.size()){
+            throw new ValidExceptionWrapper("The number of departure dates does not match the number of flights added.");
+        }
+        if (flightRemoveList.size() != departureDateRemoveList.size()){
+            throw new ValidExceptionWrapper("The number of departure dates does not match the number of flights removed.");
+        }
+       Reservation reservation = reservationService.updateReservation(number, flightAddList, departureDateAddList, flightRemoveList, departureDateRemoveList);
+//        if (!CollectionUtils.isEmpty(flightRemoveList)){
+//            reservationService.removeFlights(number, flightRemoveList, departureDateRemoveList);
+//        }
+
 //        reservationService.updateReservation()
 
         return ResponseUtil.convertResponseEntity(reservation, xml);
