@@ -59,25 +59,42 @@ public class ReservationController {
 
     @PostMapping("{number}")
     public ResponseEntity<?> updateReservation(@PathVariable String number,
-                                               @RequestParam(value = "flightsAdded",required = false, defaultValue = "") List<String> flightAddList,
-                                               @RequestParam(value = "departureDatesAdded", required = false, defaultValue = "") List<String> departureDateAddList,
-                                               @RequestParam(value = "departureDatesRemoved", required = false, defaultValue = "") List<String> departureDateRemoveList,
-                                               @RequestParam(value = "flightsRemoved",required = false, defaultValue = "") List<String> flightRemoveList,
+                                               @RequestParam(value = "flightsAdded",required = false) List<String> flightAddList,
+                                               @RequestParam(value = "departureDatesAdded", required = false) List<String> departureDateAddList,
+                                               @RequestParam(value = "departureDatesRemoved", required = false) List<String> departureDateRemoveList,
+                                               @RequestParam(value = "flightsRemoved",required = false) List<String> flightRemoveList,
                                                @RequestParam(value = "xml", required = false, defaultValue = "false") boolean xml) {
 
-        if (flightAddList.size() != departureDateAddList.size()){
-            throw new ValidExceptionWrapper("The number of departure dates does not match the number of flights added.");
+        if ((flightAddList != null) && (flightAddList.size() == 0)){
+            throw new ErrorExceptionWrapper("If parameter flightAddList exists, then it list of values cannot be empty.");
         }
-        if (flightRemoveList.size() != departureDateRemoveList.size()){
-            throw new ValidExceptionWrapper("The number of departure dates does not match the number of flights removed.");
+
+        if ((flightRemoveList != null) && (flightRemoveList.size() == 0)){
+            throw new ErrorExceptionWrapper("If parameter flightRemoveList exists, then it list of values cannot be empty.");
         }
+
+        if ((departureDateAddList != null) && (departureDateAddList.size() == 0)){
+            throw new ErrorExceptionWrapper("If parameter departureDateAddList exists, then it list of values cannot be empty.");
+        }
+
+        if ((departureDateRemoveList != null) && (departureDateRemoveList.size() == 0)){
+            throw new ErrorExceptionWrapper("If parameter departureDateRemoveList exists, then it list of values cannot be empty.");
+        }
+
+        if (flightAddList != null){
+            if (departureDateAddList == null) throw new ErrorExceptionWrapper("Departure date required to add a flight.");
+            if (flightAddList.size() != departureDateAddList.size()){
+                throw new ErrorExceptionWrapper("The number of departure dates does not match the number of flights added.");
+            }
+        }
+        if (flightRemoveList != null){
+            if (departureDateRemoveList == null) throw new ErrorExceptionWrapper("Departure date required to remove a flight.");
+            if (flightRemoveList.size() != departureDateRemoveList.size()){
+                throw new ErrorExceptionWrapper("The number of departure dates does not match the number of flights removed.");
+            }
+        }
+
        Reservation reservation = reservationService.updateReservation(number, flightAddList, departureDateAddList, flightRemoveList, departureDateRemoveList);
-//        if (!CollectionUtils.isEmpty(flightRemoveList)){
-//            reservationService.removeFlights(number, flightRemoveList, departureDateRemoveList);
-//        }
-
-//        reservationService.updateReservation()
-
         return ResponseUtil.convertResponseEntity(reservation, xml);
     }
 
